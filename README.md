@@ -1,4 +1,4 @@
-# AmethystReport — ver 0.0.0
+# SensoerReport — ver 0.0.0
 
 `index.html` をWindowsのEdgeまたはChromeで開いてください。インストール、サーバー、Pythonは不要です。3ファイル（index.html / core.js / app.js）を同じフォルダに置きます。
 
