@@ -1,0 +1,11 @@
+data/
+output/
+*.csv
+*.tsv
+*.txt
+*.CSV
+*.TSV
+*.TXT
+*.xlsx
+*.xls
+*.log

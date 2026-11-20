@@ -1,0 +1,10 @@
+const {test}=require('node:test');const assert=require('node:assert/strict');const A=require('../core.js');
+const header='製番\t屑1\t屑理由1\t屑2\t屑理由2\t保留1\t保留理由1\t保留2\t保留理由2\n';
+const factory=()=>A.read(header+'TEST01\t3\t101:ヘゲ線\t8\t124:寸大\t5\t102:陥没\t2\tその他CM','factory');
+const got=()=>A.read(':DEV_COMMENT,"製番","NG判定数"\r\n26/11/01 01:00:00," TEST01 ",12','got');
+test('屑と保留を対象理由だけ合算',()=>{const r=A.compare(got(),factory()).rows[0];assert.equal(r.f,10);assert.equal(r.scrap,3);assert.equal(r.hold,7);assert.equal(r.diff,2);});
+test('未分類は暫定値で差分なし、設定で再計算',()=>{const f=factory();f[0]['保留理由2']='999:新理由';assert.equal(A.compare(got(),f).rows[0].diff,null);assert.equal(A.compare(got(),f,{'999:新理由':'include'}).rows[0].f,10);});
+test('重複は合算しない',()=>{const r=A.compare([...got(),...got()],factory()).rows[0];assert.equal(r.g,null);assert.equal(r.diff,null);assert.equal(r.status,'重複・要確認');});
+test('未照合とゼロを区別',()=>{assert.equal(A.compare([],factory()).rows[0].g,null);const g=got();g[0]['NG判定数']=0;assert.equal(A.compare(g,factory()).rows[0].g,0);});
+test('不正本数と空製番を検出',()=>{assert.equal(A.read(header+'\t-1\tx\t0\t0\t0\t0\t0\t0','factory')[0].error,'製番が空です');assert.throws(()=>A.read('a,b\n1,2','factory'));assert.equal(A.read(header+'TEST\t\tx\t0\t0\t0\t0\t0\t0','factory')[0].error,'本数が空欄または非負整数ではありません');});
+test('CSV引用符と改行',()=>{assert.deepEqual(A.parse('a,"b,b","c""d"\r\nx,y,z'),[['a','b,b','c"d'],['x','y','z']]);assert.throws(()=>A.parse('a,"b'));});
